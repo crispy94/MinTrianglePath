@@ -1,6 +1,8 @@
+import scala.collection.immutable.IntMap
 import scala.io.Source
 import scala.util.Try
 
+//Using list over array because of inmutability
 object MinTrianglePath {
 
   case class TriangleElem(elem: Int, elemPath: List[Int])
@@ -35,20 +37,26 @@ object MinTrianglePath {
   }
 
   def main(args: Array[String]) {
-    val filename = args(0)
-    val parsedFileOpt = readFile(filename)
-    val response = parsedFileOpt
-      .map { parsedFile =>
-        val initialEmptyRow = List.fill[TriangleElem](
-          parsedFile.last.length + 1
-        )(TriangleElem(0, List()))
+    if (args.length == 0) {
+      println("[Error] - Introduce a filename as parameter, please")
+    } else {
+      val filename = args(0)
+      val parsedFileOpt = readFile(filename)
+      val response = parsedFileOpt.map { parsedFile =>
+        if (parsedFile.isEmpty) {
+          "[Error] - Empty file read"
+        } else {
+          val initialEmptyRow = List.fill[TriangleElem](
+            parsedFile.last.length + 1
+          )(TriangleElem(0, List()))
 
-        val result =
-          parsedFile.foldRight(initialEmptyRow)(calculeSubRows).head
+          val result =
+            parsedFile.foldRight(initialEmptyRow)(calculeSubRows).head
 
-        s"Minimal path is: ${result.elemPath.mkString("+")} = ${result.elem}"
-      }
-      .getOrElse("[Error] - Error reading file")
-    println(response)
+          s"Minimal path is: ${result.elemPath.mkString("+")} = ${result.elem}"
+        }
+      }.getOrElse("[Error] - Error reading file")
+      println(response)
+    }
   }
 }
