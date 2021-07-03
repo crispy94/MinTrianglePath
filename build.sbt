@@ -1,5 +1,4 @@
-name := "PRUEBA"
+import Library._
+import sbt.Keys._
 
-version := "0.1"
-
-scalaVersion := "2.12.10"
+libraryDependencies ++= Seq(ScalaTest)

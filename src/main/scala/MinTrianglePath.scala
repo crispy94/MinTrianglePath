@@ -1,8 +1,7 @@
-import scala.collection.immutable.IntMap
 import scala.io.Source
 import scala.util.Try
+import Errors._
 
-//Using list over array because of inmutability
 object MinTrianglePath {
 
   case class TriangleElem(elem: Int, elemPath: List[Int])
@@ -26,7 +25,7 @@ object MinTrianglePath {
   }
 
   private def calculeSubRows(upRow: List[Int],
-                             bottomRow: List[TriangleElem]) = {
+                             bottomRow: List[TriangleElem]): List[TriangleElem] = {
     upRow.zip(bottomRow.zip(bottomRow.tail)).map {
       case (upElemInt, (leftElem, rightElem)) => {
         val minElem =
@@ -36,16 +35,12 @@ object MinTrianglePath {
     }
   }
 
-  def main(args: Array[String]) {
-    if (args.length == 0) {
-      println("[Error] - Introduce a filename as parameter, please")
-    } else {
-      val filename = args(0)
-      val parsedFileOpt = readFile(filename)
-      val response = parsedFileOpt.map { parsedFile =>
-        if (parsedFile.isEmpty) {
-          "[Error] - Empty file read"
-        } else {
+  def calculePath(filename: String): String = {
+    val parsedFileOpt = readFile(filename)
+    parsedFileOpt
+      .map { parsedFile =>
+        if (parsedFile.isEmpty) emptyFileError
+        else {
           val initialEmptyRow = List.fill[TriangleElem](
             parsedFile.last.length + 1
           )(TriangleElem(0, List()))
@@ -53,10 +48,15 @@ object MinTrianglePath {
           val result =
             parsedFile.foldRight(initialEmptyRow)(calculeSubRows).head
 
-          s"Minimal path is: ${result.elemPath.mkString("+")} = ${result.elem}"
+          s"Minimal path is: ${result.elemPath.mkString(" + ")} = ${result.elem}"
         }
-      }.getOrElse("[Error] - Error reading file")
-      println(response)
-    }
+      }
+      .getOrElse(readFileError)
+  }
+  def main(args: Array[String]) {
+    if (args.length == 0)
+      println(mainArgsError)
+    else
+      println(calculePath(args(0)))
   }
 }
